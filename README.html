@@ -1,0 +1,91 @@
+One very popular tool for statistical analysis is the R programming <br />
+language. In R, one may very easily create <br />
+vectors and matrices. For example, to create a vector $x = (1, 2, 3)$, <br />
+the instruction is x <- c(1, 2, 3) (the function c() will concatenate<br />
+multiple inputs into one single vector literal). To later modify $x$ to $(5, 4, 3, 2, 1)$, <br />
+the instruction is nothing but x <- c(5, 4, 3, 2, 1). If there exists<br />
+another vector $y = (5, 0, 1, 1)$, one may also create a new vector $z$ <br />
+by executing z <- y. <br />
+<br />
+If you think about these instructions, you quickly realize that each vector<br />
+in R is just like a C++ object, and that assignment operator <- is <br />
+overloaded for R vectors so that the right-hand-side (RHS) value of <-<br />
+can be either a vector literal (like c(1, 2, 3)) or a vector object<br />
+(like y). Besides the assignment operator, the indexing operator is also <br />
+overloaded. We may use z[2] to access the second element of $z$, whose value<br />
+is 0. Note that the indices of R vectors fit out common sense; you do not need to <br />
+worry about the cumbersome $i$ or $i - 1$ issue in C++. <br />
+<br />
+Most arithmetic operators have also been overloaded. <br />
+R defines some vector arithmetic operations in an interesting way: recycling<br />
+(which is the word R uses to mean repeating). <br />
+Consider the addition operation as an example. <br />
+Let $x_1 = (1, 2, 3, 4, 5)$ and $x_2 = (8, 4, 2, 1, 0)$, <br />
+naturally $x_1 + x_2 = (9, 6, 5, 5, 5)$. What if we have $x_3 = (9, 1, 5)$<br />
+and we want to calculate $x_1 + x_3$? In this case, R calculate the outcome in two <br />
+steps:<br />
+<br />
+	1. Recycle $x_3$ (because it is shorter) into $x_3'$ to make $x_3'$ as long as $x_1$. The elements in $x_3$ would be repeated and appended to $x_3$ until $x_3'$ is long enough. In this example, $x_3'$ would be $(9, 1, 5, 9, 1)$. <br />
+	2. Add $x_1$ and $x_3'$, the recycled $x_3$, to get $(10, 3, 8, 13, 6)$. <br />
+<br />
+Therefore, the outcome of $x_1 + x_3$ is defined to be $(10, 3, 8, 13, 6)$. <br />
+For subtraction, it is the same. For example, if $y_1 = (9, 9, 9, 9, 9, 9, 9, 9, 9)$<br />
+and $y_2 = (1, 2, 4, 0)$, we have $y_1 - y_2 = (8, 7, 5, 9, 8, 7, 5, 9, 8)$. <br />
+For comparison operators like less-than, greater-than, or equal-to, <br />
+the same recycling rule is still applied: The shorter vector is recycled to be <br />
+as long as the longer one, and then a natural pairwise comparison gives the <br />
+result. For example, $z_1 = (1, 2, -1, 4, 1) < z_2 = (2, 3)$ is false<br />
+and $z_3 = (1, 2, -1, 0, 1) < z_2$ is true. For this problem, $a < b$ (respectively, $a > b$) <br />
+is defined as \textit{all} elements in $a$ is <br />
+\textit{strictly smaller} (respectively, \textit{larger})<br />
+than the corresponding element in $b$. <br />
+<br />
+In this problem, these vector arithmetic are implemented with C++ <br />
+operator overloading by creating a class RecylcingVector<br />
+with overloaded operators =, +, -, [], <br />
+<, >, and ==.<br />
+</div><p class="title"> Input： </p>
+Each line start with a single English letter, which may be N, A, C, I, S, and M. <br />
+These letters corresponds to the following events:<br />
+<br />
+	1. If the first letter is ``N'' (for ``new''), it will be followed by an English lowercase letter $c$, a positive integer $n$, and then $n$ integers $x_1$, $x_2$, ..., and $x_n$. This will create a new vector $c = (x_1, x_2, ..., x_n)$. Note that the character $c$ is the name of the vector, and thus there will be at most 26 vectors when the program is running. <br />
+	2. If the first letter is ``A'' (for ``assignment''), it will be followed by an English lowercase letter $c$, a positive integer $n$, and 	then $n$ integers $x_1$, $x_2$, ..., and $x_n$. This will assign $(x_1, x_2, ..., x_n)$ to the vector $c$(and remove all the original values in $c$) even if $n$ is different from the current dimension of $c$. You may assume that $c$ has been created with an appropriate N event.  <br />
+	3. If the first letter is ``C'' (for ``comparison''), it will be followed by a character $x$ that is L (for ``less than''), G (for ``greater than''), or E (for ``equal to''), an English lowercase letter $c_1$, and another English lowercase letter $c_2$. This will print out the result of $c_1 < c_2$, $c_1 > c_2$, and $c_1 = c_2$, respectively. If it is true, please print out 1; otherwise, please print out 0. Each output number should occupy a single line. <br />
+	4. If the first letter is ``I'' (for ``indexing''), it will be followed by an English lowercase letter $c$, an integer $i$, and an integer $v$. This will assign $v$ to $c_i$. You may assume that $1 \leq i \leq n$. <br />
+	5. If the first letter is ``S'' (for ``sum''), it will be followed by a positive integer $m$ and $m$ English lowercase letters $c_1$, $c_2$, ..., and $c_m$. This will assign $c_2 + c_3 + \cdots c_m$ to $c_1$. You may assume that $c_i$ has been created with an appropriate N event	for all $i = 2, ..., m$. However, $c_1$ may not be an existing vector. In this case, a new vector is created whose value is $c_2 + c_3 + \cdots c_m$. <br />
+	6. If the first letter is ``M'' (for ``minus''), it will be followed by a positive integer $m$ and $m$ English lowercase letters $c_1$, $c_2$, ..., and $c_m$. This will assign $c_2 - c_3 - \cdots c_m$ to $c_1$. You may assume that $c_i$ has been created with an appropriate N event	for all $i = 2, ..., m$. However, $c_1$ may not be an existing vector. In this case, a new vector is created whose value is $c_2 - c_3 - \cdots c_m$. <br />
+<br />
+In each line, two consecutive values are separated by a white space. <br />
+assume that $n \leq 20$, $m \leq 10$, and all values that may be assigned into <br />
+a vector can be stored in an int variable. <br />
+<br />
+Please note that in each input file, there may be multiple C events. <br />
+Each output number should occupy a single line.</div>
+<p class="title"> Output： </p><div>For example, consider a file containing<br />
+<br />
+N  a  3  0  0  0<br />
+N  b 5  1  2  1  2  5<br />
+A  a  8  3  4  3  4  3  4  5  6<br />
+N  c  2  -1  -2<br />
+S  4  a  a  b  c<br />
+I  a  1  0<br />
+C  L  a  b<br />
+<br />
+as the input data. The first two lines creates two vectors $a = (0, 0, 0)$<br />
+and $b = (1, 2, 1, 2, 5)$. Then the third line modifies $a$ into <br />
+$a = (3, 4, 3, 4, 3, 4, 5, 6)$. After the fourth line creates $c = (-1, -2)$, <br />
+the fifth line calculates $a + b + c$ and then modify $a$ into $a + b + c$<br />
+(in other words, this lines adds $b + c$ into $a$). As <br />
+<br />
+	a + b + c = (3, 4, 3, 4, 3, 4, 5, 6) + (1, 2, 1, 2, 5, 1, 2, 1) + (-1, -2, -1, -2, -1, -2, -1, -2) = (3, 4, 3, 4, 7, 3, 6, 5), <br />
+<br />
+the vector $a$ now becomes $(3, 4, 3, 4, 7, 3, 6, 5)$. The sixth line<br />
+then modifies $a_1$ to 0; $a$ thus becomes $(0, 4, 3, 4, 7, 3, 6, 5)$. <br />
+Finally, we check whether $a < b$. As the second element-wise comparison yields<br />
+$4 \nless 2$, the result is false. We should print out 0 as the outcome. </div><p class="title"> Sample Input： </p><div><span class="testdata">N a 3 0 0 0<br />
+N b 5 1 2 1 2 5<br />
+A a 8 3 4 3 4 3 4 5 6<br />
+N c 2 -1 -2<br />
+S 4 a a b c<br />
+I a 1 0<br />
+C L a b</span>
